@@ -567,7 +567,7 @@ html.sketching body > :not(.sketch) { visibility: hidden; animation: sketch-fail
 .pools__ink.i2 { stroke: var(--green); }
 .pools__ink.i3 { stroke: var(--lilac); }
 /* same dotted line as the home doors path (.map-path) */
-.pools__cuts path { fill: none; stroke: var(--plum); stroke-width: 2.4; stroke-dasharray: 2 9; stroke-linecap: round; opacity: .65; }
+.pools__cuts path { fill: none; stroke: var(--plum); stroke-width: 1.6; stroke-dasharray: 2 9; stroke-linecap: round; opacity: .65; }
 .pools text { text-anchor: middle; fill: var(--ink); font-family: var(--sans); }
 .pools__name text { font-family: var(--head); font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
 .pools__word text { font-size: 19.5px; }
