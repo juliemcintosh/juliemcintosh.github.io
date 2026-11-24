@@ -330,7 +330,7 @@
     reveal.setAttribute('d', path.getAttribute('d'));
     if (path.getAttribute('transform')) reveal.setAttribute('transform', path.getAttribute('transform'));
     const len = path.getTotalLength();
-    Object.assign(reveal.style, { fill: 'none', stroke: '#fff', strokeWidth: '24', strokeLinecap: 'round', strokeDasharray: `${len}`, strokeDashoffset: `${len}` });
+    Object.assign(reveal.style, { fill: 'none', stroke: '#fff', strokeWidth: '24', strokeLinecap: 'round', vectorEffect: 'none', opacity: '1', strokeDasharray: `${len}`, strokeDashoffset: `${len}` });
     mask.append(reveal); defs.append(mask);
     path.setAttribute('mask', `url(#${mask.id})`);
     return () => reveal.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration, delay, easing: 'cubic-bezier(.4,.1,.2,1)', fill: 'forwards' })
@@ -344,14 +344,14 @@
     const beads = [...map.querySelectorAll('.bead')];
     const len = path.getTotalLength();
     /* the path starts off to the left, behind the side menu; beads go on the stretch beside the doors (x >= 150) */
-    let lo = 0, hi = len;
-    while (hi - lo > 1) { const mid = (lo + hi) / 2; if (path.getPointAtLength(mid).x < 150) lo = mid; else hi = mid; }
+    const at = (x) => { let lo = 0, hi = len; while (hi - lo > 1) { const mid = (lo + hi) / 2; if (path.getPointAtLength(mid).x < x) lo = mid; else hi = mid; } return hi; };
+    const from = at(150), to = at(850);
     beads.forEach((b, n) => {
-      const p = path.getPointAtLength(hi + (len - hi) * (n + 1) / (beads.length + 1));
+      const p = path.getPointAtLength(from + (to - from) * (n + 1) / (beads.length + 1));
       b.setAttribute('cx', p.x); b.setAttribute('cy', p.y);
     });
     if (!reduce) {
-      const start = dotIn(path, 3400);
+      const start = dotIn(path, 3400 * len / 1580);
       const mo = new IntersectionObserver(([e]) => {
         if (!e.isIntersecting) return;
         start();

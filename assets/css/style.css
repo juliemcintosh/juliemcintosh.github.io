@@ -117,8 +117,10 @@ html.sketching body > :not(.sketch) { visibility: hidden; animation: sketch-fail
   padding: 26px 24px 20px;
   display: flex; flex-direction: column;
   overflow-y: auto;
-  scrollbar-width: thin;
+  /* still scrolls on short screens, but with no visible scroll bar (Julie's request) */
+  scrollbar-width: none;
 }
+.sidebar__panel::-webkit-scrollbar { display: none; }
 .brand { text-decoration: none; display: block; margin-bottom: 18px; }
 .brand__name { font-family: var(--head); font-weight: 500; font-size: 27px; letter-spacing: -0.01em; line-height: 1.05; display: block; }
 .brand__tag {
@@ -172,7 +174,7 @@ html.sketching body > :not(.sketch) { visibility: hidden; animation: sketch-fail
 .topbar { display: none; }
 .scrim { display: none; }
 
-.main { min-width: 0; padding: 16px var(--gutter) 0; }
+.main { min-width: 0; padding: 16px var(--gutter) 0; overflow-x: clip; }
 .page { max-width: 1120px; margin: 0 auto; padding: clamp(28px, 5vw, 64px) 0 0; }
 
 /* ───────── Type helpers ───────── */
@@ -250,12 +252,14 @@ html.sketching body > :not(.sketch) { visibility: hidden; animation: sketch-fail
 .doors__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 40px); position: relative; z-index: 1; }
 .door { text-decoration: none; display: block; }
 .door:nth-child(2) { margin-top: 56px; }
-.door:nth-child(3) { margin-top: 18px; }
+.door:nth-child(3) { margin-top: -20px; } /* About: 1cm (38px) higher than before, at Julie's request */
 .door__img {
   aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: var(--panel);
   box-shadow: 0 0 0 8px var(--bg), 0 0 0 9px var(--line);
   transition: transform .8s var(--ease), box-shadow .5s;
 }
+/* About bubble: larger screens get the zoomed-out crop (portrait-home-wide), phones keep portrait-home */
+.door__img picture { display: block; width: 100%; height: 100%; }
 .door__img img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
 .door:hover .door__img { transform: rotate(-4deg) scale(1.02); box-shadow: 0 0 0 8px var(--bg), 0 0 0 10px var(--accent); }
 .door:hover .door__img img { transform: scale(1.1) rotate(4deg); }
@@ -269,7 +273,11 @@ html.sketching body > :not(.sketch) { visibility: hidden; animation: sketch-fail
 .arrow-mark { color: var(--accent); font-size: 20px; transition: transform .35s var(--ease); display: inline-block; }
 .door:hover .arrow-mark, .card:hover .arrow-mark, .list-link:hover .arrow-mark { transform: translateX(5px); }
 .map-path { position: absolute; inset: -6% -2% auto; width: 104%; height: 60%; z-index: 0; pointer-events: none; overflow: visible; }
-.map-path path { fill: none; stroke: var(--plum); stroke-width: 1.6; stroke-dasharray: 2 9; stroke-linecap: round; opacity: .65; }
+/* dotted lines match the rings in the quote box: 1px strokes, 3px dashes, 7px gaps, measured on screen */
+.map-path path { fill: none; stroke: var(--plum); stroke-width: 1; stroke-dasharray: 3 7; vector-effect: non-scaling-stroke; opacity: .65; }
+/* the dots drift slowly along the line, at the speed of the quote box rings (about 12px a second) */
+@keyframes dots-drift { to { stroke-dashoffset: -10; } }
+.map-path .map-path__line { animation: dots-drift .8s linear infinite; }
 .map-path .bead { fill: var(--red); opacity: 0; transform-box: fill-box; transform-origin: center; }
 
 /* ───────── Panels & sections ───────── */
@@ -493,7 +501,17 @@ html.sketching body > :not(.sketch) { visibility: hidden; animation: sketch-fail
 
 /* About */
 .about-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(24px, 5vw, 72px); align-items: start; }
+/* About: portrait column 15% wider than the standard .about-grid (.9fr of 2fr) */
+.about-grid--portrait { grid-template-columns: minmax(0, 1.035fr) minmax(0, .965fr); }
+/* About: exhibitions, residencies, education and awards */
+.cv { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(24px, 4vw, 48px); margin-top: clamp(24px, 3vw, 36px); }
+.cv h3 { font-size: 20px; margin-bottom: 10px; }
+.cv ul { list-style: none; margin: 0; padding: 0; }
+.cv li { padding: 10px 0; border-bottom: 1px solid var(--line); }
+@media (max-width: 680px) { .cv { grid-template-columns: 1fr; } }
 .portrait { border-radius: var(--r-img-lg); overflow: hidden; position: sticky; top: 32px; }
+/* About portrait: dashed plum frame, the look Julie liked from the cropping tool */
+.about-grid--portrait .portrait { outline: 3px dashed var(--plum); outline-offset: 4px; }
 .portrait img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 30%; }
 .principles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .principle { background: var(--paper); border-radius: var(--r-md); padding: 22px 24px; }
@@ -567,7 +585,7 @@ html.sketching body > :not(.sketch) { visibility: hidden; animation: sketch-fail
 .pools__ink.i2 { stroke: var(--green); }
 .pools__ink.i3 { stroke: var(--lilac); }
 /* same dotted line as the home doors path (.map-path) */
-.pools__cuts path { fill: none; stroke: var(--plum); stroke-width: 1.6; stroke-dasharray: 2 9; stroke-linecap: round; opacity: .65; }
+.pools__cuts path { fill: none; stroke: var(--plum); stroke-width: 1; stroke-dasharray: 3 7; vector-effect: non-scaling-stroke; opacity: .65; animation: dots-drift .8s linear infinite; }
 .pools text { text-anchor: middle; fill: var(--ink); font-family: var(--sans); }
 .pools__name text { font-family: var(--head); font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
 .pools__word text { font-size: 19.5px; }
